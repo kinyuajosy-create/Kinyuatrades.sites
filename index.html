@@ -1,0 +1,773 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Exness‑style Trading · Live UI</title>
+  <!-- Font Awesome & Google Font for realism -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Inter', sans-serif;
+    }
+
+    body {
+      background: #0b0e14;
+      color: #e9edf5;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 16px;
+    }
+
+    /* main trading container – realistic Exness‑like panel */
+    .trading-app {
+      max-width: 1360px;
+      width: 100%;
+      background: #131a24;
+      border-radius: 32px;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.7), 0 0 0 1px rgba(255,255,255,0.03);
+      padding: 24px 28px;
+      transition: all 0.2s;
+    }
+
+    /* header / top bar */
+    .top-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 24px;
+      flex-wrap: wrap;
+      gap: 16px;
+    }
+
+    .logo-area {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .logo {
+      background: #00b8a9;
+      width: 40px;
+      height: 40px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 22px;
+      font-weight: 700;
+      color: #0b0e14;
+      box-shadow: 0 4px 12px rgba(0,184,169,0.3);
+    }
+
+    .logo-text {
+      font-size: 20px;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+      color: white;
+    }
+
+    .logo-text span {
+      color: #00b8a9;
+      font-weight: 600;
+    }
+
+    .user-actions {
+      display: flex;
+      align-items: center;
+      gap: 18px;
+    }
+
+    .balance-badge {
+      background: #1e2a36;
+      padding: 8px 18px;
+      border-radius: 60px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-weight: 600;
+      border: 1px solid #2b3a4a;
+      font-size: 15px;
+      cursor: default;
+    }
+
+    .balance-badge i {
+      color: #00b8a9;
+      font-size: 18px;
+    }
+
+    .btn {
+      background: #1e2a36;
+      border: 1px solid #2e4053;
+      color: #e9edf5;
+      padding: 8px 20px;
+      border-radius: 40px;
+      font-weight: 600;
+      font-size: 14px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: 0.15s;
+      cursor: pointer;
+      outline: none;
+    }
+
+    .btn-primary {
+      background: #00b8a9;
+      border: 1px solid #00b8a9;
+      color: #0b0e14;
+      box-shadow: 0 4px 12px rgba(0,184,169,0.3);
+    }
+
+    .btn-primary:hover {
+      background: #00a396;
+      border-color: #00a396;
+    }
+
+    .btn-outline:hover {
+      background: #253544;
+      border-color: #3f5568;
+    }
+
+    /* account creation / signup row (only visible if not logged in) */
+    .signup-row {
+      background: #0f161f;
+      border-radius: 20px;
+      padding: 18px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 16px;
+      margin-bottom: 28px;
+      border: 1px solid #1e2d3c;
+      box-shadow: inset 0 1px 3px rgba(0,0,0,0.5);
+    }
+
+    .signup-row p {
+      font-size: 15px;
+      font-weight: 500;
+      color: #b0c1d4;
+    }
+
+    .signup-row p i {
+      color: #00b8a9;
+      margin-right: 6px;
+    }
+
+    .signup-fields {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .signup-fields input {
+      background: #1b2533;
+      border: 1px solid #2b3e50;
+      border-radius: 40px;
+      padding: 10px 20px;
+      font-size: 14px;
+      color: white;
+      outline: none;
+      width: 180px;
+      transition: 0.2s;
+    }
+
+    .signup-fields input:focus {
+      border-color: #00b8a9;
+      box-shadow: 0 0 0 2px rgba(0,184,169,0.2);
+    }
+
+    .signup-fields input::placeholder {
+      color: #6a7f94;
+      font-weight: 400;
+    }
+
+    /* main grid – left chart + right panel */
+    .dashboard-grid {
+      display: grid;
+      grid-template-columns: 1fr 340px;
+      gap: 24px;
+      margin-bottom: 28px;
+    }
+
+    /* chart card */
+    .chart-card {
+      background: #0f161f;
+      border-radius: 24px;
+      padding: 22px 24px;
+      border: 1px solid #1f2e3c;
+      box-shadow: 0 10px 20px rgba(0,0,0,0.4);
+    }
+
+    .chart-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+
+    .pair-info {
+      display: flex;
+      align-items: center;
+      gap: 18px;
+    }
+
+    .pair-name {
+      font-size: 20px;
+      font-weight: 700;
+      letter-spacing: -0.3px;
+    }
+
+    .pair-price {
+      font-size: 28px;
+      font-weight: 700;
+      color: #00b8a9;
+      letter-spacing: -1px;
+    }
+
+    .pair-change {
+      background: #00b8a920;
+      color: #00b8a9;
+      padding: 4px 12px;
+      border-radius: 40px;
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    .timeframes {
+      display: flex;
+      gap: 8px;
+      background: #1b2533;
+      padding: 6px;
+      border-radius: 40px;
+    }
+
+    .timeframes span {
+      padding: 6px 16px;
+      font-size: 13px;
+      font-weight: 600;
+      border-radius: 40px;
+      cursor: pointer;
+      color: #98aec4;
+      transition: 0.1s;
+    }
+
+    .timeframes span.active {
+      background: #00b8a9;
+      color: #0b0e14;
+    }
+
+    /* simulated candlestick chart using flex + gradients */
+    .chart-area {
+      display: flex;
+      align-items: flex-end;
+      height: 200px;
+      gap: 6px;
+      padding: 16px 0 8px;
+      border-bottom: 1px solid #1e2e3c;
+      margin-bottom: 16px;
+    }
+
+    .candle {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      height: 100%;
+      justify-content: flex-end;
+      transition: all 0.15s;
+    }
+
+    .candle .body {
+      width: 12px;
+      border-radius: 3px 3px 2px 2px;
+      transition: 0.15s;
+    }
+
+    .candle .wick {
+      width: 2px;
+      background: #6a7f94;
+      height: 12px;
+      margin: 2px 0;
+    }
+
+    /* candle colors */
+    .green .body {
+      background: #00b8a9;
+      box-shadow: 0 0 8px #00b8a966;
+    }
+    .red .body {
+      background: #f23645;
+      box-shadow: 0 0 8px #f2364566;
+    }
+    .green .wick { background: #00b8a9; }
+    .red .wick { background: #f23645; }
+
+    /* right order panel */
+    .order-panel {
+      background: #0f161f;
+      border-radius: 24px;
+      padding: 22px 20px;
+      border: 1px solid #1f2e3c;
+      box-shadow: 0 10px 20px rgba(0,0,0,0.4);
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .order-tabs {
+      display: flex;
+      background: #1b2533;
+      border-radius: 40px;
+      padding: 5px;
+    }
+
+    .order-tabs button {
+      flex: 1;
+      background: transparent;
+      border: none;
+      padding: 10px 0;
+      font-weight: 700;
+      font-size: 14px;
+      border-radius: 40px;
+      color: #98aec4;
+      cursor: pointer;
+      transition: 0.15s;
+    }
+
+    .order-tabs button.active {
+      background: #00b8a9;
+      color: #0b0e14;
+    }
+
+    .order-form {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .input-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .input-group label {
+      font-size: 12px;
+      font-weight: 600;
+      color: #8fa3b8;
+      letter-spacing: 0.3px;
+      text-transform: uppercase;
+    }
+
+    .input-group input {
+      background: #1b2533;
+      border: 1px solid #2b3e50;
+      border-radius: 14px;
+      padding: 14px 16px;
+      font-size: 16px;
+      font-weight: 600;
+      color: white;
+      outline: none;
+      transition: 0.2s;
+    }
+
+    .input-group input:focus {
+      border-color: #00b8a9;
+    }
+
+    .order-actions {
+      display: flex;
+      gap: 12px;
+      margin-top: 8px;
+    }
+
+    .order-actions .btn {
+      flex: 1;
+      justify-content: center;
+      padding: 14px 0;
+      font-size: 16px;
+      border-radius: 16px;
+    }
+
+    .buy-btn {
+      background: #00b8a9;
+      border: none;
+      color: #0b0e14;
+      font-weight: 700;
+    }
+
+    .sell-btn {
+      background: #f23645;
+      border: none;
+      color: white;
+      font-weight: 700;
+    }
+
+    /* bottom positions table */
+    .positions-section {
+      background: #0f161f;
+      border-radius: 24px;
+      padding: 18px 24px;
+      border: 1px solid #1f2e3c;
+      box-shadow: 0 10px 20px rgba(0,0,0,0.4);
+    }
+
+    .positions-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+    }
+
+    .positions-header h3 {
+      font-size: 16px;
+      font-weight: 600;
+      color: #b0c1d4;
+    }
+
+    .positions-header h3 i {
+      margin-right: 8px;
+      color: #00b8a9;
+    }
+
+    .positions-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 14px;
+    }
+
+    .positions-table th {
+      text-align: left;
+      padding: 8px 0;
+      color: #7b8fa3;
+      font-weight: 500;
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+      border-bottom: 1px solid #1e2e3c;
+    }
+
+    .positions-table td {
+      padding: 12px 0;
+      font-weight: 500;
+      border-bottom: 1px solid #151f2a;
+    }
+
+    .green-text { color: #00b8a9; }
+    .red-text { color: #f23645; }
+
+    /* modal for payment / account creation */
+    .modal-overlay {
+      position: fixed;
+      top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(0,0,0,0.8);
+      backdrop-filter: blur(6px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+    }
+
+    .modal-overlay.active {
+      display: flex;
+    }
+
+    .modal-card {
+      background: #131f2b;
+      border-radius: 32px;
+      max-width: 440px;
+      width: 90%;
+      padding: 32px 32px;
+      border: 1px solid #2b3e50;
+      box-shadow: 0 30px 60px rgba(0,0,0,0.8);
+    }
+
+    .modal-card h2 {
+      font-size: 24px;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+
+    .modal-card h2 i {
+      color: #00b8a9;
+      margin-right: 12px;
+    }
+
+    .modal-sub {
+      color: #9bb1c7;
+      font-size: 14px;
+      margin-bottom: 24px;
+      line-height: 1.4;
+    }
+
+    .payment-methods {
+      display: flex;
+      gap: 12px;
+      margin: 18px 0 24px;
+    }
+
+    .payment-method {
+      background: #1b2a38;
+      border: 1px solid #2b3e50;
+      border-radius: 16px;
+      padding: 16px 12px;
+      flex: 1;
+      text-align: center;
+      cursor: pointer;
+      transition: 0.15s;
+    }
+
+    .payment-method.active {
+      border-color: #00b8a9;
+      background: #1e3a3a;
+    }
+
+    .payment-method i {
+      font-size: 24px;
+      color: #00b8a9;
+      display: block;
+      margin-bottom: 6px;
+    }
+
+    .payment-method span {
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    .modal-actions {
+      display: flex;
+      gap: 12px;
+      margin-top: 8px;
+    }
+
+    .modal-actions .btn {
+      flex: 1;
+      justify-content: center;
+      padding: 14px 0;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    /* responsive */
+    @media (max-width: 900px) {
+      .dashboard-grid {
+        grid-template-columns: 1fr;
+      }
+      .trading-app {
+        padding: 18px;
+      }
+    }
+  </style>
+</head>
+<body>
+<div class="trading-app" id="tradingApp">
+  <!-- Top bar -->
+  <div class="top-bar">
+    <div class="logo-area">
+      <div class="logo">E</div>
+      <div class="logo-text">Exness<span>·Trade</span></div>
+    </div>
+    <div class="user-actions">
+      <div class="balance-badge" id="balanceDisplay">
+        <i class="fas fa-wallet"></i> $<span id="balanceAmount">10,000.00</span>
+      </div>
+      <button class="btn btn-outline" id="depositBtn"><i class="fas fa-credit-card"></i> Deposit</button>
+      <button class="btn btn-primary" id="createAccountBtn"><i class="fas fa-user-plus"></i> Sign up</button>
+    </div>
+  </div>
+
+  <!-- Account creation row (login / signup) -->
+  <div class="signup-row" id="signupRow">
+    <p><i class="fas fa-user-circle"></i> New to Exness? Create a free account to start trading.</p>
+    <div class="signup-fields">
+      <input type="text" id="usernameInput" placeholder="Username" value="trader01">
+      <input type="password" id="passwordInput" placeholder="Password" value="pass1234">
+      <button class="btn btn-primary" id="loginBtn"><i class="fas fa-sign-in-alt"></i> Login / Register</button>
+    </div>
+  </div>
+
+  <!-- Main dashboard: chart + order panel -->
+  <div class="dashboard-grid">
+    <!-- Chart card -->
+    <div class="chart-card">
+      <div class="chart-header">
+        <div class="pair-info">
+          <span class="pair-name">EUR/USD</span>
+          <span class="pair-price" id="livePrice">1.0842</span>
+          <span class="pair-change" id="priceChange">+0.24%</span>
+        </div>
+        <div class="timeframes">
+          <span>1m</span>
+          <span>5m</span>
+          <span class="active">15m</span>
+          <span>1h</span>
+          <span>1d</span>
+        </div>
+      </div>
+      <!-- Candle chart simulation (static realistic) -->
+      <div class="chart-area" id="candleChart">
+        <!-- Candles are generated by JS for realism -->
+      </div>
+      <div style="display: flex; justify-content: space-between; font-size: 12px; color: #6a7f94; padding: 0 4px;">
+        <span>09:00</span><span>10:00</span><span>11:00</span><span>12:00</span><span>13:00</span><span>14:00</span>
+      </div>
+    </div>
+
+    <!-- Order panel -->
+    <div class="order-panel">
+      <div class="order-tabs">
+        <button class="active" id="marketTab">Market</button>
+        <button id="limitTab">Limit</button>
+      </div>
+      <div class="order-form">
+        <div class="input-group">
+          <label>Volume (lots)</label>
+          <input type="number" id="volumeInput" value="0.10" step="0.01" min="0.01">
+        </div>
+        <div class="input-group">
+          <label>Stop Loss</label>
+          <input type="number" id="slInput" placeholder="0.0000" step="0.0001">
+        </div>
+        <div class="input-group">
+          <label>Take Profit</label>
+          <input type="number" id="tpInput" placeholder="0.0000" step="0.0001">
+        </div>
+        <div class="order-actions">
+          <button class="btn buy-btn" id="buyBtn"><i class="fas fa-arrow-up"></i> Buy</button>
+          <button class="btn sell-btn" id="sellBtn"><i class="fas fa-arrow-down"></i> Sell</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Positions / open trades -->
+  <div class="positions-section">
+    <div class="positions-header">
+      <h3><i class="fas fa-chart-simple"></i> Open Positions</h3>
+      <span style="font-size:13px; color:#7b8fa3;" id="positionCount">2 active</span>
+    </div>
+    <table class="positions-table" id="positionsTable">
+      <thead>
+        <tr><th>Symbol</th><th>Type</th><th>Volume</th><th>Price</th><th>P/L</th></tr>
+      </thead>
+      <tbody id="positionsBody">
+        <!-- dynamic rows -->
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- Payment / Deposit Modal -->
+<div class="modal-overlay" id="paymentModal">
+  <div class="modal-card">
+    <h2><i class="fas fa-lock"></i> Deposit funds</h2>
+    <div class="modal-sub">Instant deposit via card, crypto or wire. Your account will be credited immediately.</div>
+
+    <div class="payment-methods" id="paymentMethods">
+      <div class="payment-method active" data-method="card"><i class="fas fa-credit-card"></i><span>Card</span></div>
+      <div class="payment-method" data-method="crypto"><i class="fab fa-bitcoin"></i><span>Crypto</span></div>
+      <div class="payment-method" data-method="wire"><i class="fas fa-university"></i><span>Wire</span></div>
+    </div>
+
+    <div class="input-group" style="margin-bottom: 12px;">
+      <label>Amount (USD)</label>
+      <input type="number" id="depositAmount" value="500" min="10" step="10">
+    </div>
+
+    <div class="modal-actions">
+      <button class="btn btn-outline" id="cancelPayment">Cancel</button>
+      <button class="btn btn-primary" id="confirmPayment"><i class="fas fa-check-circle"></i> Pay now</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  (function() {
+    // ------- STATE -------
+    let balance = 10000.00;
+    let currentUser = null;          // { username, password }
+    let positions = [
+      { symbol: 'EUR/USD', type: 'Buy', volume: 0.10, price: 1.0830, pl: 12.00 },
+      { symbol: 'GBP/USD', type: 'Sell', volume: 0.20, price: 1.2650, pl: -8.50 }
+    ];
+    let livePrice = 1.0842;
+    let priceChangePercent = 0.24;   // +0.24%
+
+    // ------- DOM ELEMENTS -------
+    const balanceAmount = document.getElementById('balanceAmount');
+    const signupRow = document.getElementById('signupRow');
+    const usernameInput = document.getElementById('usernameInput');
+    const passwordInput = document.getElementById('passwordInput');
+    const loginBtn = document.getElementById('loginBtn');
+    const createAccountBtn = document.getElementById('createAccountBtn');
+    const depositBtn = document.getElementById('depositBtn');
+    const buyBtn = document.getElementById('buyBtn');
+    const sellBtn = document.getElementById('sellBtn');
+    const positionsBody = document.getElementById('positionsBody');
+    const positionCount = document.getElementById('positionCount');
+    const livePriceSpan = document.getElementById('livePrice');
+    const priceChangeSpan = document.getElementById('priceChange');
+    const paymentModal = document.getElementById('paymentModal');
+    const cancelPayment = document.getElementById('cancelPayment');
+    const confirmPayment = document.getElementById('confirmPayment');
+    const depositAmountInput = document.getElementById('depositAmount');
+    const paymentMethods = document.querySelectorAll('.payment-method');
+    const candleChart = document.getElementById('candleChart');
+    const volumeInput = document.getElementById('volumeInput');
+
+    // ------- HELPER: format money -------
+    function formatMoney(value) {
+      return value.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+    }
+
+    // ------- RENDER BALANCE -------
+    function updateBalanceUI() {
+      balanceAmount.textContent = formatMoney(balance);
+    }
+
+    // ------- RENDER POSITIONS TABLE -------
+    function renderPositions() {
+      if (positions.length === 0) {
+        positionsBody.innerHTML = `<tr><td colspan="5" style="text-align:center; color:#7b8fa3; padding:24px;">No open positions</td></tr>`;
+        positionCount.textContent = '0 active';
+        return;
+      }
+      let html = '';
+      positions.forEach((pos, idx) => {
+        const plClass = pos.pl >= 0 ? 'green-text' : 'red-text';
+        const plSign = pos.pl >= 0 ? '+' : '';
+        html += `<tr>
+          <td><strong>${pos.symbol}</strong></td>
+          <td class="${pos.type === 'Buy' ? 'green-text' : 'red-text'}">${pos.type}</td>
+          <td>${pos.volume.toFixed(2)}</td>
+          <td>${pos.price.toFixed(4)}</td>
+          <td class="${plClass}">${plSign}${pos.pl.toFixed(2)}</td>
+        </tr>`;
+      });
+      positionsBody.innerHTML = html;
+      positionCount.textContent = positions.length + ' active';
+    }
+
+    // ------- UPDATE LIVE PRICE UI -------
+    function updatePriceUI() {
+      livePriceSpan.textContent = livePrice.toFixed(4);
+      priceChangeSpan.textContent = (priceChangePercent >= 0 ? '+' : '') + priceChangePercent.toFixed(2) + '%';
+      priceChangeSpan.style.color = priceChangePercent >= 0 ? '#00b8a9' : '#f23645';
+    }
+
+    // ------- SIMULATE LIVE PRICE MOVEMENT (every 3 sec) -------
+    function simulateLivePrice() {
+      // random walk ±0.0003
+      const move = (Math.random() - 0.5) * 0.0006;
+      livePrice =
